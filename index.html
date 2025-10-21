@@ -532,9 +532,11 @@
             }
 
             // --- 事件綁定 ---
+            // *** 錯誤修復：改用事件委派 (Event Delegation) 處理所有點擊事件，更穩健 ***
             document.body.addEventListener('click', function(e) {
                 const targetId = e.target.id;
-                const targetClassList = e.gantarget.classList;
+                // 檢查 targetClassList 是否存在，避免錯誤
+                const targetClassList = e.target.classList;
 
                 if (targetId === 'add-ingredient-btn') {
                     addIngredientRow();
@@ -542,12 +544,13 @@
                     addCookingStepRow();
                 } else if (targetId === 'reset-all-btn') {
                     resetAll();
-                } else if (targetClassList.contains('delete-btn')) {
+                } else if (targetClassList && targetClassList.contains('delete-btn')) {
                     e.target.closest('.ingredient-row, .cooking-row').remove();
                     calculateAll();
                 }
             });
             
+            // 監聽整個容器的輸入變化，效率更高
             document.querySelector('.container').addEventListener('input', calculateAll);
 
             // --- 初始化 ---
