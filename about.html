@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關於我們 - 食譜成本計算機</title>
+    <!-- 引用與主頁相同的樣式 -->
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg-color: #ffffff;
+            --text-color: #212529;
+            --secondary-text-color: #6c757d;
+            --accent-color: #28a745;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            flex-grow: 1;
+        }
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 2.2rem; margin: 0; }
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        .card h2 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+        .card a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .card a:hover {
+            text-decoration: underline;
+        }
+        footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: var(--secondary-text-color); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>關於我們 (About Us)</h1>
+        </header>
+
+        <main class="card">
+            <h2>我們的使命 (Our Mission)</h2>
+            <p>
+                「食譜成本計算機」的誕生，源於一個簡單的信念：無論您是專業餐廳主廚、烘焙坊老闆，還是充滿熱情的家庭廚師，您都應該擁有一個強大、直觀且免費的工具，來精準掌握每一份料理的成本。我們致力於消除繁瑣的計算過程，讓您能更專注於創造美味。
+            </p>
+            <p>
+                This Recipe Cost Calculator was born from a simple belief: whether you're a professional chef, a bakery owner, or a passionate home cook, you deserve a powerful, intuitive, and free tool to master the cost of every dish. We are dedicated to eliminating the tedious calculation process, allowing you to focus more on creating delicious food.
+            </p>
+
+            <h2>聯絡我們 (Contact Us)</h2>
+            <p>
+                我們重視您的每一個建議與回饋。如果您在使用上有任何問題，或是有新的功能想法，都歡迎隨時透過電子郵件與我們聯繫。
+                <br>
+                We value your suggestions and feedback. If you encounter any issues or have ideas for new features, please feel free to contact us via email.
+            </p>
+            <p>
+                <strong>Email:</strong> <a href="mailto:skadoosh.ai.lab@gmail.com">skadoosh.ai.lab@gmail.com</a>
+            </p>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 20px 0;">
+            <p style="text-align: center;">
+                <a href="./index.html">返回計算機 (Back to Calculator)</a>
+            </p>
+        </main>
+        
+        <footer>&copy; 2025 食譜成本計算機 - Recipe Cost Calculator. All rights reserved.</footer>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食譜成本計算機 - Recipe Cost Calculator</title>
+
+    <!-- SEO 優化標籤 -->
+    <meta name="description" content="一款為全球餐飲業者與料理愛好者設計的專業食譜成本計算機。精準計算食材、電力、瓦斯成本，自動產生建議售價，支援中英雙語。A professional recipe cost calculator for chefs and home cooks worldwide. Accurately calculate ingredient, electricity, and gas costs to determine suggested selling prices. Bilingual support.">
+    <meta name="keywords" content="食譜成本, 成本計算, 烘焙成本, 餐廳定價, 菜單成本, 毛利率計算, recipe costing, food cost calculator, menu pricing, restaurant profitability, baking cost">
+    
+    <!-- JSON-LD 結構化資料 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "食譜成本計算機 - Recipe Cost Calculator",
+      "description": "精準計算食譜的食材與烹飪成本，並根據毛利率提供建議售價。",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires HTML5 support",
+      "url": "YOUR_WEBSITE_URL_HERE"
+    }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg-color: #ffffff;
+            --text-color: #212529;
+            --secondary-text-color: #6c757d;
+            --accent-color: #28a745; /* 使用綠色作為新的主題色，代表成本與利潤 */
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --danger-color: #dc3545; /* 刪除按鈕的顏色 */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 2.2rem; margin: 0; }
+        header h2 { font-size: 1.1rem; font-weight: 400; color: var(--secondary-text-color); margin: 5px 0 0 0; }
+        
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .card-footer-note {
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .card-header h3 { margin: 0; font-size: 1.2rem; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.9rem; color: var(--secondary-text-color); margin-bottom: 5px; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+        }
+        
+        /* 移除數字輸入框的上下箭頭 */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
+        /* 調整動態列中下拉選單的字體大小 */
+        .ingredient-row select, .cooking-row select {
+            font-size: 0.9rem;
+        }
+
+        .list-header {
+            display: grid;
+            gap: 10px;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-text-color);
+        }
+        .ingredients-header-grid {
+             grid-template-columns: 3fr 1.2fr 1.2fr 1.5fr 1.2fr 1.5fr auto;
+        }
+        .cooking-header-grid {
+             grid-template-columns: 1fr 1fr auto;
+        }
+
+        .ingredient-row {
+            display: grid;
+            grid-template-columns: 3fr 1.2fr 1.2fr 1.5fr 1.2fr 1.5fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .cooking-row { 
+            display: grid;
+            grid-template-columns: 1fr 1fr auto; 
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+         /* 響應式：在小螢幕上 */
+        @media (max-width: 768px) {
+            .list-header { display: none; } /* 手機上隱藏標題列 */
+            .ingredient-row, .cooking-row {
+                grid-template-columns: 1fr;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 10px;
+                position: relative;
+            }
+            .ingredient-row > *, .cooking-row > * {
+                margin-bottom: 5px; /* 在垂直排列時增加間距 */
+            }
+             .delete-btn {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+            }
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--accent-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; padding: 5px 10px; font-size: 0.9rem; }
+        .add-btn-container { margin-top: 20px; text-align: right; }
+
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .result-item { background-color: var(--bg-color); padding: 15px; border-radius: 8px; }
+        .result-item h4 { margin: 0 0 10px 0; color: var(--secondary-text-color); font-weight: 500; }
+        .result-item p { margin: 0; font-size: 1.8rem; font-weight: bold; color: var(--accent-color); }
+        .result-item.total-summary .result-item {
+            text-align: center;
+            background: none;
+            padding: 0;
+        }
+        .result-item .total { font-size: 2.2rem; color: #343a40; }
+        
+        @media (max-width: 600px) {
+            .results-grid { grid-template-columns: 1fr; }
+        }
+        
+        #google-ad-container { width: 100%; min-height: 50px; margin-top: 20px; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--secondary-text-color); background-color: #f1f1f1; border-radius: 8px; box-sizing: border-box; }
+        
+        footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            padding: 20px 0; 
+            color: var(--secondary-text-color); 
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .footer-links {
+            margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: var(--secondary-text-color);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>食譜成本計算機</h1>
+            <h2>Recipe Cost Calculator</h2>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>成本設定 (Cost Settings)</h3>
+                <button class="btn btn-secondary" id="reset-all-btn">一鍵重置 (Reset All)</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="electricity-cost">每度電價格 (NTD$/kWh)</label>
+                    <input type="number" id="electricity-cost" value="5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="gas-cost">瓦斯/每小時/費用 (Gas/per Hour/NTD$)</label>
+                    <input type="number" id="gas-cost" value="15" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="markup">毛利率 (%) (Gross Margin %)</label>
+                    <select id="markup"></select>
+                </div>
+            </div>
+            <div class="card-footer-note">
+                * 瓦斯成本請依據您當地的瓦斯帳單與爐具功率(BTU)估算，預設值為參考。
+                (Please estimate gas cost based on your local utility bill and stove's BTU rating. The default value is a reference.)
+            </div>
+        </div>
+
+        <div class="card">
+             <div class="card-header">
+                <h3>食譜資訊 (Recipe Info)</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="recipe-name">食譜名稱 (Recipe Name)</label>
+                    <input type="text" id="recipe-name" placeholder="例如：法式檸檬塔">
+                </div>
+                <div class="form-group">
+                    <label for="servings">產出份數 (Servings)</label>
+                    <input type="number" id="servings" value="1" min="1">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>食材成本 (Ingredients Cost)</h3>
+            </div>
+            <div class="list-header ingredients-header-grid">
+                <div>食材名稱 (Name)</div>
+                <div>進價 (NTD$)</div>
+                <div>數量 (Qty)</div>
+                <div>單位 (Unit)</div>
+                <div>用量 (Used)</div>
+                <div>單位 (Unit)</div>
+                <div></div>
+            </div>
+            <div id="ingredients-list"></div>
+            <div class="add-btn-container">
+                <button class="btn btn-primary" id="add-ingredient-btn">+ 新增食材 (Add Ingredient)</button>
+            </div>
+            <div class="card-footer-note">
+                * 炭火、木柴等燃料成本，可在此處作為一個食材項目輸入。
+                (Costs for fuel like charcoal or wood can be entered here as an ingredient item.)
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>烹飪成本 (Cooking Cost)</h3>
+            </div>
+            <div class="list-header cooking-header-grid">
+                <div>烹飪設備 (Appliance)</div>
+                <div>使用時間 (Time)</div>
+                <div></div>
+            </div>
+            <div id="cooking-steps-list"></div>
+            <div class="add-btn-container">
+                <button class="btn btn-primary" id="add-cooking-step-btn">+ 新增烹飪步驟 (Add Step)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>成本分析 (Cost Analysis)</h3>
+            </div>
+            <div class="results-grid">
+                <div class="result-item">
+                    <h4>食材總成本 (NTD$)</h4>
+                    <p id="total-ingredient-cost">NTD$ 0.00</p>
+                </div>
+                <div class="result-item">
+                    <h4>烹飪總成本 (NTD$)</h4>
+                    <p id="total-cooking-cost">NTD$ 0.00</p>
+                </div>
+                <div class="result-item">
+                    <h4>每份成本 (NTD$/Serving)</h4>
+                    <p id="cost-per-serving">NTD$ 0.00</p>
+                </div>
+                <div class="result-item">
+                    <h4>每份建議售價 (Price/Serving)</h4>
+                    <p id="suggested-price">NTD$ 0.00</p>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 20px 0;">
+            <div class="results-grid total-summary">
+                 <div class="result-item">
+                    <h4>全部總成本 (Grand Total)</h4>
+                    <p class="total" id="grand-total-cost">NTD$ 0.00</p>
+                </div>
+                <div class="result-item">
+                    <h4>總建議營收 (Total Revenue)</h4>
+                    <p class="total" id="total-revenue">NTD$ 0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="google-ad-container">Google Ad Placeholder</div>
+        
+        <footer>
+            <div class="footer-links">
+                <a href="./about.html">關於我們 (About)</a>
+                <a href="./privacy-policy.html">隱私權政策 (Privacy)</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 食譜成本計算機 - Recipe Cost Calculator. All rights reserved.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        
+            // --- 全域變數與常數 ---
+            const electricityCostInput = document.getElementById('electricity-cost');
+            const gasCostInput = document.getElementById('gas-cost');
+            const markupSelect = document.getElementById('markup');
+            const servingsInput = document.getElementById('servings');
+            
+            const ingredientsList = document.getElementById('ingredients-list');
+            const cookingStepsList = document.getElementById('cooking-steps-list');
+
+            const totalIngredientCostEl = document.getElementById('total-ingredient-cost');
+            const totalCookingCostEl = document.getElementById('total-cooking-cost');
+            const grandTotalCostEl = document.getElementById('grand-total-cost');
+            const costPerServingEl = document.getElementById('cost-per-serving');
+            const suggestedPriceEl = document.getElementById('suggested-price');
+            const totalRevenueEl = document.getElementById('total-revenue');
+
+            const APPLIANCE_POWER = {
+                oven: 3.0,                  // 電烤箱 (家用嵌入式~商用)
+                microwave: 1.2,             // 微波爐
+                induction_cooker: 1.8,      // IH電磁爐 (單口)
+                air_fryer: 1.5,             // 氣炸鍋
+                rice_cooker: 0.8,           // 電鍋
+                gas_stove: 1,               // 瓦斯爐 (係數)
+                portable_gas_stove: 1,      // 可攜式瓦斯爐 (係數)
+            };
+            
+            const unitToBase = {
+                'g': 1, 'kg': 1000, 'lb': 453.592, 'oz': 28.35,
+                'ml': 1, 'L': 1000, 'tsp': 4.92, 'tbsp': 14.79, 'cup': 236.59, 'floz': 29.57,
+                'piece': 1
+            };
+
+            // --- 核心功能函式 ---
+            function calculateAll() {
+                let totalIngredientCost = 0;
+                const ingredientRows = ingredientsList.querySelectorAll('.ingredient-row');
+                ingredientRows.forEach(row => {
+                    const purchasePrice = parseFloat(row.querySelector('.purchase-price').value) || 0;
+                    const purchaseQty = parseFloat(row.querySelector('.purchase-qty').value) || 0;
+                    const purchaseUnit = row.querySelector('.purchase-unit').value;
+                    const usedQty = parseFloat(row.querySelector('.used-qty').value) || 0;
+                    const usedUnit = row.querySelector('.used-unit').value;
+                    if (purchaseQty === 0) return;
+                    const purchaseQtyInBase = purchaseQty * (unitToBase[purchaseUnit] || 1);
+                    const usedQtyInBase = usedQty * (unitToBase[usedUnit] || 1);
+                    const costPerBaseUnit = purchasePrice / purchaseQtyInBase;
+                    totalIngredientCost += costPerBaseUnit * usedQtyInBase;
+                });
+                
+                let totalCookingCost = 0;
+                const cookingRows = cookingStepsList.querySelectorAll('.cooking-row');
+                const electricityCost = parseFloat(electricityCostInput.value) || 0;
+                const gasCost = parseFloat(gasCostInput.value) || 0;
+                cookingRows.forEach(row => {
+                    const appliance = row.querySelector('.appliance').value;
+                    const timeInMinutes = parseFloat(row.querySelector('.cooking-time').value) || 0;
+                    const timeInHours = timeInMinutes / 60;
+                    if (appliance.includes('gas')) {
+                        totalCookingCost += timeInHours * gasCost;
+                    } else {
+                        const power = APPLIANCE_POWER[appliance] || 0;
+                        totalCookingCost += power * timeInHours * electricityCost;
+                    }
+                });
+
+                const grandTotal = totalIngredientCost + totalCookingCost;
+                const servings = parseFloat(servingsInput.value) || 1;
+                const costPerServing = grandTotal / servings;
+                const markup = parseFloat(markupSelect.value) || 0;
+
+                let suggestedPrice = 0;
+                if (markup < 100) {
+                    suggestedPrice = costPerServing / (1 - (markup / 100));
+                } else {
+                    suggestedPrice = Infinity;
+                }
+
+                const totalRevenue = suggestedPrice === Infinity ? Infinity : suggestedPrice * servings;
+                
+                const formatCurrency = (value) => `NTD$ ${value.toFixed(2)}`;
+
+                totalIngredientCostEl.textContent = formatCurrency(totalIngredientCost);
+                totalCookingCostEl.textContent = formatCurrency(totalCookingCost);
+                grandTotalCostEl.textContent = formatCurrency(grandTotal);
+                costPerServingEl.textContent = formatCurrency(costPerServing);
+                
+                if (suggestedPrice === Infinity) {
+                    suggestedPriceEl.textContent = 'N/A';
+                    totalRevenueEl.textContent = 'N/A';
+                } else {
+                    suggestedPriceEl.textContent = formatCurrency(suggestedPrice);
+                    totalRevenueEl.textContent = formatCurrency(totalRevenue);
+                }
+            }
+
+            // --- UI 操作函式 ---
+            function populateMarkupSelect() {
+                for (let i = 5; i <= 95; i += 5) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}%`;
+                    markupSelect.appendChild(option);
+                }
+                markupSelect.value = "60"; 
+            }
+
+            function addIngredientRow() {
+                const div = document.createElement('div');
+                div.className = 'ingredient-row';
+                div.innerHTML = `
+                    <input type="text" placeholder="食材 (Ingredient)" class="ingredient-name">
+                    <input type="number" placeholder="進價" class="purchase-price" step="0.1" min="0">
+                    <input type="number" placeholder="數量" class="purchase-qty" step="0.1" min="0">
+                    <select class="purchase-unit">
+                        <optgroup label="重量 (Weight)">
+                            <option value="g">公克 (g)</option><option value="kg">公斤 (kg)</option><option value="lb">磅 (lb)</option><option value="oz">盎司 (oz)</option>
+                        </optgroup>
+                        <optgroup label="容量 (Volume)">
+                            <option value="ml">毫升 (ml)</option><option value="L">公升 (L)</option>
+                        </optgroup>
+                        <optgroup label="單位 (Unit)">
+                            <option value="piece">個 (piece)</option>
+                        </optgroup>
+                    </select>
+                    <input type="number" placeholder="用量" class="used-qty" step="0.1" min="0">
+                    <select class="used-unit">
+                         <optgroup label="重量 (Weight)">
+                            <option value="g">公克 (g)</option><option value="kg">公斤 (kg)</option><option value="lb">磅 (lb)</option><option value="oz">盎司 (oz)</option>
+                        </optgroup>
+                        <optgroup label="容量 (Volume)">
+                            <option value="ml">毫升 (ml)</option><option value="L">公升 (L)</option><option value="tsp">茶匙 (tsp)</option><option value="tbsp">湯匙 (tbsp)</option><option value="cup">杯 (cup)</option><option value="floz">液盎司 (fl oz)</option>
+                        </optgroup>
+                        <optgroup label="單位 (Unit)">
+                             <option value="piece">個 (piece)</option>
+                        </optgroup>
+                    </select>
+                    <button class="btn btn-danger delete-btn">X</button>
+                `;
+                ingredientsList.appendChild(div);
+            }
+
+            function addCookingStepRow() {
+                const div = document.createElement('div');
+                div.className = 'cooking-row';
+                div.innerHTML = `
+                    <select class="appliance">
+                        <option value="oven">電烤箱 (Oven)</option>
+                        <option value="microwave">微波爐 (Microwave)</option>
+                        <option value="gas_stove">瓦斯爐 (Gas Stove)</option>
+                        <option value="induction_cooker">IH電磁爐 (Induction Cooker)</option>
+                        <option value="air_fryer">氣炸鍋 (Air Fryer)</option>
+                        <option value="rice_cooker">電鍋/蒸煮 (Rice Cooker)</option>
+                        <option value="portable_gas_stove">可攜式瓦斯爐 (Portable Gas Stove)</option>
+                    </select>
+                    <input type="number" placeholder="分鐘 (Minutes)" class="cooking-time" step="1" min="0">
+                    <button class="btn btn-danger delete-btn">X</button>
+                `;
+                cookingStepsList.appendChild(div);
+            }
+
+            function resetAll() {
+                electricityCostInput.value = '5';
+                gasCostInput.value = '15';
+                markupSelect.value = "60"; 
+                document.getElementById('recipe-name').value = '';
+                servingsInput.value = '1';
+                ingredientsList.innerHTML = '';
+                cookingStepsList.innerHTML = '';
+                addIngredientRow();
+                calculateAll();
+            }
+
+            // --- 事件綁定 ---
+            document.body.addEventListener('click', function(e) {
+                const targetId = e.target.id;
+                const targetClassList = e.target.classList;
+
+                if (targetId === 'add-ingredient-btn') {
+                    addIngredientRow();
+                } else if (targetId === 'add-cooking-step-btn') {
+                    addCookingStepRow();
+                } else if (targetId === 'reset-all-btn') {
+                    resetAll();
+                } else if (targetClassList.contains('delete-btn')) {
+                    e.target.closest('.ingredient-row, .cooking-row').remove();
+                    calculateAll();
+                }
+            });
+            
+            document.querySelector('.container').addEventListener('input', calculateAll);
+
+            // --- 初始化 ---
+            populateMarkupSelect(); 
+            addIngredientRow();
+            calculateAll();
+        
+        });
+    </script>
+</body>
+</html>
+
