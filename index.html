@@ -23,6 +23,10 @@
     }
     </script>
 
+    <!-- Google AdSense 廣告程式碼 -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8149364037190716"
+     crossorigin="anonymous"></script>
+
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -530,7 +534,7 @@
             // --- 事件綁定 ---
             document.body.addEventListener('click', function(e) {
                 const targetId = e.target.id;
-                const targetClassList = e.target.classList;
+                const targetClassList = e.gantarget.classList;
 
                 if (targetId === 'add-ingredient-btn') {
                     addIngredientRow();
